@@ -287,7 +287,7 @@ function Signup({ setScreen, setRole }) {
   }
   return <main className="page form-page signup-page">
     <button className="back" onClick={() => setScreen('customer')}>←</button>
-    <div className="signup-heading"><span className="brand-mark">✦</span><p className="eyebrow">CREATE YOUR ACCOUNT</p><h1>Join TaskNest</h1><p>Book trusted local help, or grow your service business.</p></div>
+    <div className="signup-heading"><span className="brand-mark">✦</span><p className="eyebrow">CREATE YOUR ACCOUNT</p><h1>Join Zanaab</h1><p>Book trusted local help, or grow your service business.</p></div>
     <form onSubmit={submit} noValidate>
       <div className="signup-role" role="group" aria-label="Choose account type">
         <button type="button" className={accountRole === 'customer' ? 'chosen' : ''} onClick={() => chooseRole('customer')}><span>⌂</span><strong>Customer</strong><small>I need a service</small></button>
@@ -323,7 +323,8 @@ function App() {
   setSelectedAddress,
 }
 
-return <div className="app-shell"><header><button className="brand" onClick={() => changeRole('customer')}><b>✦</b> TaskNest</button><div className="role-switch"><button className={role === 'customer' ? 'selected' : ''} onClick={() => changeRole('customer')}>Customer</button><button className={role === 'worker' ? 'selected' : ''} onClick={() => changeRole('worker')}>Worker</button></div><button className="signup-link" onClick={() => setScreen('signup')}>Sign up</button></header><View {...viewProps} /><nav><button onClick={() => changeRole(role)}><span>⌂</span>Home</button><button><span>▣</span>Jobs</button><button onClick={() => role === 'worker' && setScreen('wallet')}><span>◉</span>{role === 'worker' ? 'Wallet' : 'Support'}</button><button onClick={() => setScreen('signup')}><span>☻</span>Profile</button></nav></div>
+return <div className="app-shell"><header><button className="brand" onClick={() => changeRole('customer')}>
+   <b>✦</b> Zanaab</button><div className="role-switch"><button className={role === 'customer' ? 'selected' : ''} onClick={() => changeRole('customer')}>Customer</button><button className={role === 'worker' ? 'selected' : ''} onClick={() => changeRole('worker')}>Worker</button></div><button className="signup-link" onClick={() => setScreen('signup')}>Sign up</button></header><View {...viewProps} /><nav><button onClick={() => changeRole(role)}><span>⌂</span>Home</button><button><span>▣</span>Jobs</button><button onClick={() => role === 'worker' && setScreen('wallet')}><span>◉</span>{role === 'worker' ? 'Wallet' : 'Support'}</button><button onClick={() => setScreen('signup')}><span>☻</span>Profile</button></nav></div>
 }
 
 createRoot(document.getElementById('root')).render(<StrictMode><App /></StrictMode>)
