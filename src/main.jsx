@@ -103,8 +103,10 @@ function Signup({ setScreen, setRole }) {
   const [accountRole, setAccountRole] = React.useState('customer')
   const [errors, setErrors] = React.useState({})
   const [drafts, setDrafts] = React.useState({ customer: createSignupDraft(), worker: createSignupDraft() })
+  const [formError, setFormError] = React.useState('')
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
   const draft = drafts[accountRole]
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
     const nextErrors = {}
@@ -121,9 +123,30 @@ function Signup({ setScreen, setRole }) {
     if (accountRole === 'worker' && data.getAll('services').length === 0) nextErrors.services = 'Select at least one service.'
     if (!data.get('terms')) nextErrors.terms = 'You must agree before creating an account.'
     setErrors(nextErrors)
-    if (Object.keys(nextErrors).length === 0) setRole(accountRole)
+    if (Object.keys(nextErrors).length > 0) return
+    setFormError('')
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName: draft.fullName, phone: draft.phone, email: draft.email, password: draft.password, role: accountRole, services: accountRole === 'worker' ? draft.services : [] }),
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        setErrors(result.errors || {})
+        setFormError(result.message || 'We could not create your account.')
+        return
+      }
+      setDrafts((current) => ({ ...current, [accountRole]: createSignupDraft() }))
+      setRole(accountRole)
+    } catch {
+      setFormError('Could not reach the local database server. Run python3 backend/app.py and try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
-  const updateDraft = (field, value) => setDrafts((current) => ({ ...current, [accountRole]: { ...current[accountRole], [field]: value } }))
+  const updateDraft = (field, value) => { setFormError(''); setDrafts((current) => ({ ...current, [accountRole]: { ...current[accountRole], [field]: value } })) }
   const clearError = (field) => setErrors((current) => ({ ...current, [field]: undefined }))
   const chooseRole = (nextRole) => {
     setErrors({})
@@ -146,7 +169,8 @@ function Signup({ setScreen, setRole }) {
         <div className="verification-note"><span>✓</span><p><strong>Verification comes next</strong> We’ll ask for your ID and service-area details after you create your account.</p></div>
       </>}
       <label className="terms"><input name="terms" checked={draft.terms} aria-invalid={Boolean(errors.terms)} onChange={(event) => { updateDraft('terms', event.target.checked); clearError('terms') }} type="checkbox" /> <span>I agree to the Terms of Service and Privacy Policy.</span></label>{errors.terms && <p className="form-error terms-error">{errors.terms}</p>}
-      <button className="primary full" type="submit">Create {accountRole} account <span>→</span></button>
+      {formError && <p className="form-error submit-error">{formError}</p>}
+      <button className="primary full" disabled={isSubmitting} type="submit">{isSubmitting ? 'Creating account…' : `Create ${accountRole} account`} <span>→</span></button>
     </form>
     <p className="login-prompt">Already have an account? <button type="button" onClick={() => setRole(accountRole)}>Log in</button></p>
   </main>
