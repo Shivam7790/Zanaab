@@ -12,6 +12,34 @@ const services = [
   { icon: '⌂', name: 'Home automation', desc: 'Smart home help' },
 ]
 
+const addresses = [
+  {
+    id: 'sector-70',
+    label: 'Home',
+    address: 'Sector 70, Mohali, Punjab',
+  },
+  {
+    id: 'phase-8',
+    label: 'Office',
+    address: 'Phase 8, Industrial Area, Mohali, Punjab',
+  },
+  {
+    id: 'sector-68',
+    label: 'Parent’s Home',
+    address: 'Sector 68, Mohali, Punjab',
+  },
+  {
+    id: 'phase-5',
+    label: 'Customer Home',
+    address: 'Phase 5, Mohali, Punjab',
+  },
+  {
+    id: 'sector-67',
+    label: 'Other',
+    address: 'Sector 67, Mohali, Punjab',
+  },
+]
+
 function Status({ children, tone = 'green' }) {
   return <span className={`status ${tone}`}>{children}</span>
 }
@@ -23,7 +51,7 @@ function CustomerHome({ setScreen }) {
     <section className="hero">
       <p className="eyebrow">GOOD MORNING, SHIVAM</p>
       <h1>What can we help<br />you fix today?</h1>
-      <button className="location">⌖ &nbsp; Indiranagar, Bengaluru <span>⌄</span></button>
+      <button className="location">⌖ &nbsp; Mohali, Punjab <span>⌄</span></button>
     </section>
     <section className="section service-section">
       <div className="section-title"><h2>Choose a service</h2><button>View all</button></div>
@@ -42,30 +70,135 @@ function CustomerHome({ setScreen }) {
   </main>
 }
 
-function RequestJob({ setScreen }) {
+function RequestJob({ setScreen, selectedAddress, setSelectedAddress }) {
   return <main className="page form-page">
     <button className="back" onClick={() => setScreen('customer')}>←</button>
-    <p className="eyebrow">NEW SERVICE REQUEST</p><h1>Tell us what you need</h1>
-    <label>Service <select defaultValue="Electrician"><option>Electrician</option><option>Plumber</option><option>Carpenter</option><option>Laptop repair</option></select></label>
-    <label>Describe the issue <textarea defaultValue="Ceiling fan needs installation in the bedroom." /></label>
-    <label>When do you need help? <select defaultValue="As soon as possible"><option>As soon as possible</option><option>Today evening</option><option>Tomorrow</option></select></label>
-    <div className="address"><span>⌖</span><div><strong>Home</strong><small>100 Feet Road, Indiranagar, Bengaluru</small></div><button>Edit</button></div>
-    <div className="estimate"><span>Estimated visit charge</span><strong>₹149–₹249</strong><small>Final price is agreed with your worker before work begins.</small></div>
-    <button className="primary full" onClick={() => setScreen('matching')}>Find a worker <span>→</span></button>
+
+    <p className="eyebrow">NEW SERVICE REQUEST</p>
+    <h1>Tell us what you need</h1>
+
+    <label>
+      Service
+      <select defaultValue="Electrician">
+        <option>Electrician</option>
+        <option>Plumber</option>
+        <option>Carpenter</option>
+        <option>Laptop repair</option>
+      </select>
+    </label>
+
+    <label>
+      Describe the issue
+      <textarea defaultValue="Ceiling fan needs installation in the bedroom." />
+    </label>
+
+    <label>
+      When do you need help?
+      <select defaultValue="As soon as possible">
+        <option>As soon as possible</option>
+        <option>Today evening</option>
+        <option>Tomorrow</option>
+      </select>
+    </label>
+
+    <label>
+      Service location
+      <select
+        value={selectedAddress.id}
+        onChange={(event) => {
+          const address = addresses.find(
+            (item) => item.id === event.target.value
+          )
+          setSelectedAddress(address)
+        }}
+      >
+        {addresses.map((address) => (
+          <option key={address.id} value={address.id}>
+            {address.label} — {address.address}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    <div className="address">
+      <span>⌖</span>
+      <div>
+        <strong>{selectedAddress.label}</strong>
+        <small>{selectedAddress.address}</small>
+      </div>
+    </div>
+
+    <div className="estimate">
+      <span>Estimated visit charge</span>
+      <strong>₹149–₹249</strong>
+      <small>
+        Final price is agreed with your worker before work begins.
+      </small>
+    </div>
+
+    <button
+      className="primary full"
+      onClick={() => setScreen('matching')}
+    >
+      Find a worker <span>→</span>
+    </button>
   </main>
 }
 
-function Matching({ setScreen }) {
-  return <main className="page center-page"><div className="radar"><i></i><span>⚡</span></div><Status tone="blue">REQUEST SENT</Status><h1>Finding your<br />electrician</h1><p>We’ve notified 10 verified electricians nearby. The first worker to accept gets the job.</p><div className="mini-workers"><span>RS</span><span>AM</span><span>VK</span><span>+7</span></div><button className="text-button" onClick={() => setScreen('tracking')}>Preview assigned task</button></main>
+
+  function Matching({ setScreen, selectedAddress }) {
+  return <main className="page center-page">
+    <div className="radar"><i></i><span>⚡</span></div>
+
+    <Status tone="blue">REQUEST SENT</Status>
+
+    <h1>Finding your<br />electrician</h1>
+
+    <p>
+      We’ve notified 10 verified electricians nearby.
+      The first worker to accept gets the job.
+    </p>
+
+    <div className="address">
+      <span>⌖</span>
+      <div>
+        <strong>Service location</strong>
+        <small>{selectedAddress.address}</small>
+      </div>
+    </div>
+
+    <div className="mini-workers">
+      <span>RS</span>
+      <span>AM</span>
+      <span>VK</span>
+      <span>+7</span>
+    </div>
+
+    <button
+      className="text-button"
+      onClick={() => setScreen('tracking')}
+    >
+      Preview assigned task
+    </button>
+  </main>
 }
 
-function Tracking({ setScreen }) {
+function Tracking({ setScreen, selectedAddress }) {
   return <main className="page">
     <button className="back" onClick={() => setScreen('customer')}>←</button>
     <p className="eyebrow">YOUR SERVICE REQUEST</p><h1>Worker is on the way</h1>
     <div className="map"><div className="route"></div><div className="pin home-pin">⌂</div><div className="pin worker-pin">🛵</div><span className="map-note">Arriving in 12 min</span></div>
     <section className="worker-summary"><div className="avatar">RK</div><div><Status>VERIFIED ELECTRICIAN</Status><h2>Rahul Kumar</h2><p>★ 4.9 &nbsp; · &nbsp; 326 jobs completed</p></div><button className="call">☎</button></section>
-    <section className="detail-box"><span>Service</span><strong>Ceiling fan installation</strong><span>Appointment</span><strong>Today, 4:30 PM</strong></section>
+   <section className="detail-box">
+  <span>Service</span>
+  <strong>Ceiling fan installation</strong>
+
+  <span>Service location</span>
+  <strong>{selectedAddress.address}</strong>
+
+  <span>Appointment</span>
+  <strong>Today, 4:30 PM</strong>
+</section>
     <p className="fine-note">If you cancel after Rahul checks in at your location, a ₹100 cancellation charge applies.</p>
     <button className="outline full">Need help?</button>
   </main>
@@ -80,11 +213,11 @@ function WorkerHome({ setScreen }) {
   </main>
 }
 
-function WorkerJob({ setScreen }) {
+function WorkerJob({ setScreen, selectedAddress }) {
   return <main className="page">
     <button className="back" onClick={() => setScreen('worker')}>←</button><p className="eyebrow">TASK #TN-18432</p><h1>Ceiling fan<br />installation</h1>
     <div className="map small-map"><div className="route"></div><div className="pin home-pin">⌂</div><div className="pin worker-pin">🛵</div></div>
-    <section className="customer-card"><div className="avatar purple">SK</div><div><strong>Shivam Kumar</strong><small>100 Feet Road, Indiranagar</small></div><button className="call">☎</button></section>
+    <section className="customer-card"><div className="avatar purple">SK</div><div><strong>Shivam Kumar</strong><small>{selectedAddress.address}</small></div><button className="call">☎</button></section>
     <div className="timer"><span>Travel time</span><strong>00:08:42</strong><Status tone="blue">LOCATION SHARING ON</Status></div>
     <button className="primary full" onClick={() => setScreen('arrived')}>I have arrived <span>⌖</span></button>
     <p className="fine-note">Check in only after reaching the customer’s location. You will need their 4-digit OTP.</p>
@@ -179,10 +312,18 @@ function Signup({ setScreen, setRole }) {
 function App() {
   const [role, setRole] = React.useState('customer')
   const [screen, setScreen] = React.useState('customer')
+  const [selectedAddress, setSelectedAddress] = React.useState(addresses[0])
   const changeRole = (next) => { setRole(next); setScreen(next) }
   const view = { customer: CustomerHome, request: RequestJob, matching: Matching, tracking: Tracking, worker: WorkerHome, job: WorkerJob, arrived: Arrived, wallet: Wallet, signup: Signup }[screen]
   const View = view || CustomerHome
-  return <div className="app-shell"><header><button className="brand" onClick={() => changeRole('customer')}><b>✦</b> TaskNest</button><div className="role-switch"><button className={role === 'customer' ? 'selected' : ''} onClick={() => changeRole('customer')}>Customer</button><button className={role === 'worker' ? 'selected' : ''} onClick={() => changeRole('worker')}>Worker</button></div><button className="signup-link" onClick={() => setScreen('signup')}>Sign up</button></header><View setScreen={setScreen} setRole={changeRole} /><nav><button onClick={() => changeRole(role)}><span>⌂</span>Home</button><button><span>▣</span>Jobs</button><button onClick={() => role === 'worker' && setScreen('wallet')}><span>◉</span>{role === 'worker' ? 'Wallet' : 'Support'}</button><button onClick={() => setScreen('signup')}><span>☻</span>Profile</button></nav></div>
+ const viewProps = {
+  setScreen,
+  setRole: changeRole,
+  selectedAddress,
+  setSelectedAddress,
+}
+
+return <div className="app-shell"><header><button className="brand" onClick={() => changeRole('customer')}><b>✦</b> TaskNest</button><div className="role-switch"><button className={role === 'customer' ? 'selected' : ''} onClick={() => changeRole('customer')}>Customer</button><button className={role === 'worker' ? 'selected' : ''} onClick={() => changeRole('worker')}>Worker</button></div><button className="signup-link" onClick={() => setScreen('signup')}>Sign up</button></header><View {...viewProps} /><nav><button onClick={() => changeRole(role)}><span>⌂</span>Home</button><button><span>▣</span>Jobs</button><button onClick={() => role === 'worker' && setScreen('wallet')}><span>◉</span>{role === 'worker' ? 'Wallet' : 'Support'}</button><button onClick={() => setScreen('signup')}><span>☻</span>Profile</button></nav></div>
 }
 
 createRoot(document.getElementById('root')).render(<StrictMode><App /></StrictMode>)
