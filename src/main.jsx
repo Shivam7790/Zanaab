@@ -2,6 +2,7 @@ import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
 import './signup.css'
+import Login from './login'
 
 const services = [
   { icon: '⚡', name: 'Electrician', desc: 'Wiring, fans & switches' },
@@ -305,7 +306,12 @@ function Signup({ setScreen, setRole }) {
       {formError && <p className="form-error submit-error">{formError}</p>}
       <button className="primary full" disabled={isSubmitting} type="submit">{isSubmitting ? 'Creating account…' : `Create ${accountRole} account`} <span>→</span></button>
     </form>
-    <p className="login-prompt">Already have an account? <button type="button" onClick={() => setRole(accountRole)}>Log in</button></p>
+<p className="login-prompt">
+  Already have an account?{' '}
+  <button type="button" onClick={() => setScreen('login')}>
+    Log in
+  </button>
+</p>
   </main>
 }
 
@@ -314,7 +320,7 @@ function App() {
   const [screen, setScreen] = React.useState('customer')
   const [selectedAddress, setSelectedAddress] = React.useState(addresses[0])
   const changeRole = (next) => { setRole(next); setScreen(next) }
-  const view = { customer: CustomerHome, request: RequestJob, matching: Matching, tracking: Tracking, worker: WorkerHome, job: WorkerJob, arrived: Arrived, wallet: Wallet, signup: Signup }[screen]
+  const view = {customer: CustomerHome,request: RequestJob,matching: Matching,tracking: Tracking,worker: WorkerHome,job: WorkerJob,arrived: Arrived,wallet: Wallet,signup: Signup,login: Login,}[screen]
   const View = view || CustomerHome
  const viewProps = {
   setScreen,
@@ -324,7 +330,7 @@ function App() {
 }
 
 return <div className="app-shell"><header><button className="brand" onClick={() => changeRole('customer')}>
-   <b>✦</b> Zanaab</button><div className="role-switch"><button className={role === 'customer' ? 'selected' : ''} onClick={() => changeRole('customer')}>Customer</button><button className={role === 'worker' ? 'selected' : ''} onClick={() => changeRole('worker')}>Worker</button></div><button className="signup-link" onClick={() => setScreen('signup')}>Sign up</button></header><View {...viewProps} /><nav><button onClick={() => changeRole(role)}><span>⌂</span>Home</button><button><span>▣</span>Jobs</button><button onClick={() => role === 'worker' && setScreen('wallet')}><span>◉</span>{role === 'worker' ? 'Wallet' : 'Support'}</button><button onClick={() => setScreen('signup')}><span>☻</span>Profile</button></nav></div>
+   <b>✦</b> Zanaab</button><div className="role-switch"><button className={role === 'customer' ? 'selected' : ''} onClick={() => changeRole('customer')}>Customer</button><button className={role === 'worker' ? 'selected' : ''} onClick={() => changeRole('worker')}>Worker</button></div><button className="signup-link" onClick={() => setScreen('login')}>Log in</button></header><View {...viewProps} /><nav><button onClick={() => changeRole(role)}><span>⌂</span>Home</button><button><span>▣</span>Jobs</button><button onClick={() => role === 'worker' && setScreen('wallet')}><span>◉</span>{role === 'worker' ? 'Wallet' : 'Support'}</button><button onClick={() => setScreen('signup')}><span>☻</span>Profile</button></nav></div>
 }
 
 createRoot(document.getElementById('root')).render(<StrictMode><App /></StrictMode>)
