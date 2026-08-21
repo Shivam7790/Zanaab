@@ -72,6 +72,15 @@ function CustomerHome({ setScreen }) {
 }
 
 function RequestJob({ setScreen, selectedAddress, setSelectedAddress }) {
+
+  const serviceDescriptions = {
+  Electrician: 'Describe the electrical problem, such as wiring, fan, switch, or power issue.',
+  Plumber: 'Describe the plumbing problem, such as a leak, tap, pipe, or drain issue.',
+  Carpenter: 'Describe the carpentry work needed, such as furniture repair or installation.',
+  'Laptop repair': 'Describe the laptop problem, such as not turning on, slow performance, or screen issue.',
+}
+
+const [selectedService, setSelectedService] = React.useState('Electrician')
   return <main className="page form-page">
     <button className="back" onClick={() => setScreen('customer')}>←</button>
 
@@ -80,18 +89,22 @@ function RequestJob({ setScreen, selectedAddress, setSelectedAddress }) {
 
     <label>
       Service
-      <select defaultValue="Electrician">
+      <select
+  value={selectedService}
+  onChange={(event) => setSelectedService(event.target.value)}
+>
         <option>Electrician</option>
         <option>Plumber</option>
         <option>Carpenter</option>
         <option>Laptop repair</option>
       </select>
     </label>
-
-    <label>
-      Describe the issue
-      <textarea defaultValue="Ceiling fan needs installation in the bedroom." />
-    </label>
+<label>
+  Describe the issue
+  <textarea
+    placeholder={serviceDescriptions[selectedService]}
+  />
+</label>
 
     <label>
       When do you need help?
