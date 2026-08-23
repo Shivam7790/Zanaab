@@ -11,6 +11,14 @@ const services = [
   { icon: '💻', name: 'Laptop repair', desc: 'Home visit support' },
   { icon: '📺', name: 'TV repair', desc: 'Setup & servicing' },
   { icon: '⌂', name: 'Home automation', desc: 'Smart home help' },
+
+
+  { icon: '❄️', name: 'AC repair', desc: 'Service & installation' },
+  { icon: '🧹', name: 'Cleaning', desc: 'Home & deep cleaning' },
+  { icon: '🔑', name: 'Locksmith', desc: 'Locks & keys' },
+  { icon: '🖌️', name: 'Painter', desc: 'Walls & interiors' },
+  { icon: '🚿', name: 'Bathroom repair', desc: 'Fittings & repairs' },
+  { icon: '🪟', name: 'Glass repair', desc: 'Windows & doors' },
 ]
 
 const addresses = [
@@ -52,16 +60,36 @@ function CustomerHome({ setScreen }) {
     <section className="hero">
       <p className="eyebrow">GOOD MORNING, SHIVAM</p>
       <h1>What can we help<br />you fix today?</h1>
-      <button className="location">⌖ &nbsp; Mohali, Punjab <span>⌄</span></button>
+      <select className="location" defaultValue="current">
+      <option value="current">⌖ Use current location</option>
+      <option value="mohali">&nbsp;&nbsp;&nbsp;&nbsp;Mohali, Punjab</option>
+      <option value="chandigarh">&nbsp;&nbsp;&nbsp;&nbsp;Chandigarh, Punjab</option>
+      <option value="kharar">&nbsp;&nbsp;&nbsp;&nbsp;Kharar, Punjab</option>
+      <option value="zirakpur">&nbsp;&nbsp;&nbsp;&nbsp;Zirakpur, Punjab</option>
+</select>
     </section>
     <section className="section service-section">
-      <div className="section-title"><h2>Choose a service</h2><button>View all</button></div>
-      <div className="service-grid">
-        {services.map((service) => <button className="service-card" onClick={() => setScreen('request')} key={service.name}>
-          <span className="service-icon">{service.icon}</span><strong>{service.name}</strong><small>{service.desc}</small>
-        </button>)}
-      </div>
-    </section>
+  <div className="section-title">
+    <h2>Choose a service</h2>
+<button onClick={() => setScreen('services')}>View all</button>  
+</div>
+
+  <div className="service-scroll">
+    <div className="service-grid">
+      {services.map((service) => (
+        <button
+          className="service-card"
+          onClick={() => setScreen('request')}
+          key={service.name}
+        >
+          <span className="service-icon">{service.icon}</span>
+          <strong>{service.name}</strong>
+          <small>{service.desc}</small>
+        </button>
+      ))}
+    </div>
+  </div>
+</section>
     <section className="section">
       <div className="section-title"><h2>Current request</h2><button onClick={() => setScreen('tracking')}>View</button></div>
       <button className="job-card" onClick={() => setScreen('tracking')}>
@@ -249,7 +277,11 @@ function Wallet({ setScreen }) {
 function Signup({ setScreen, setRole }) {
   const [accountRole, setAccountRole] = React.useState('customer')
   const [errors, setErrors] = React.useState({})
-  const [drafts, setDrafts] = React.useState({ customer: createSignupDraft(), worker: createSignupDraft() })
+  const [drafts, setDrafts] = React.useState({
+    customer: createSignupDraft(),
+    worker: createSignupDraft()
+  })
+  const [confirmPassword, setConfirmPassword] = React.useState('')
   const [formError, setFormError] = React.useState('')
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const draft = drafts[accountRole]
