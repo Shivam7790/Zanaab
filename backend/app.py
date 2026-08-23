@@ -1,12 +1,12 @@
 """Small local API for TaskNest development. Run with: python3 backend/app.py"""
 from __future__ import annotations
-
+import os
 import base64
 import hashlib
 import json
 import re
 import secrets
-import sqlite3
+import psycopg
 from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -19,10 +19,14 @@ ALLOWED_SERVICES = {"carpenter", "electrician", "desktop-repair"}
 EMAIL_PATTERN = re.compile(r"^[^\s@]+@[^\s@]+\.com$", re.IGNORECASE)
 
 
-def database() -> sqlite3.Connection:
-    connection = sqlite3.connect(DB_PATH)
-    connection.row_factory = sqlite3.Row
-    return connection
+def database():
+    return psycopg.connect(
+        host="localhost",
+        port=5432,
+        dbname="zanaab",
+        user="postgres",
+        password=os.environ["ZANAAB_DB_PASSWORD"],
+    )
 
 
 def initialise_database() -> None:
@@ -30,7 +34,7 @@ def initialise_database() -> None:
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 full_name TEXT NOT NULL,
                 phone TEXT NOT NULL UNIQUE,
                 email TEXT NOT NULL UNIQUE,
@@ -41,6 +45,7 @@ def initialise_database() -> None:
             )
             """
         )
+        connection.commit()
 
 
 def hash_password(password: str) -> str:
@@ -89,14 +94,14 @@ class ApiHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(encoded)))
-        self.send_header("Access-Control-Allow-Origin", "http://localhost:5173")
+        self.send_header("Access-Control-Allow-Origin", "http://localhost:5174")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
         self.wfile.write(encoded)
 
     def do_OPTIONS(self) -> None:
         self.send_response(HTTPStatus.NO_CONTENT)
-        self.send_header("Access-Control-Allow-Origin", "http://localhost:5173")
+        self.send_header("Access-Control-Allow-Origin", "http://localhost:5174")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
         self.end_headers()
@@ -123,11 +128,11 @@ class ApiHandler(BaseHTTPRequestHandler):
             with database() as connection:
                 cursor = connection.execute(
                     """INSERT INTO users (full_name, phone, email, password_hash, role, services_json, created_at)
-                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                       VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                     (user["full_name"], user["phone"], user["email"], hash_password(user["password"]), user["role"], json.dumps(user["services"]), datetime.now(timezone.utc).isoformat()),
                 )
-            self.send_json(HTTPStatus.CREATED, {"id": cursor.lastrowid, "role": user["role"]})
-        except sqlite3.IntegrityError as error:
+            self.send_json(HTTPStatus.CREATED, {"role": user["role"]})
+        except psycopg.errors.UniqueViolation as error:
             field = "email" if "email" in str(error).lower() else "phone"
             self.send_json(HTTPStatus.CONFLICT, {"errors": {field: f"This {field} is already registered."}})
 
