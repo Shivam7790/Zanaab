@@ -305,22 +305,37 @@ function Signup({ setScreen, setRole }) {
     if (Object.keys(nextErrors).length > 0) return
     setFormError('')
     setIsSubmitting(true)
-    try {
+        try {
       const response = await fetch('http://127.0.0.1:8000/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName: draft.fullName, phone: draft.phone, email: draft.email, password: draft.password, role: accountRole, services: accountRole === 'worker' ? draft.services : [] }),
+        body: JSON.stringify({
+          fullName: draft.fullName,
+          phone: draft.phone,
+          email: draft.email,
+          password: draft.password,
+          role: accountRole,
+          services: accountRole === 'worker' ? draft.services : [],
+        }),
       })
+
       const result = await response.json()
+
       if (!response.ok) {
-        setErrors(result.errors || {})
-        setFormError(result.message || 'We could not create your account.')
+        const serverErrors = result.errors || {}
+        setErrors(serverErrors)
+        setFormError(
+          result.message ||
+          (!Object.keys(serverErrors).length ? 'We could not create your account.' : '')
+        )
         return
       }
+
       setDrafts((current) => ({ ...current, [accountRole]: createSignupDraft() }))
       setRole(accountRole)
-    } catch {
-      setFormError('Could not reach the local database server. Run python3 backend/app.py and try again.')
+    } catch (error) {
+      console.error('Signup request failed:', error)
+      setFormError(`Signup request failed: ${error.message}`)
     } finally {
       setIsSubmitting(false)
     }

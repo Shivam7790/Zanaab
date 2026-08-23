@@ -4,3 +4,6 @@ dist/
 .env
 .env.*
 backend/tasknest.db
+
+# Local database backups
+*.dump

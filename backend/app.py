@@ -21,11 +21,11 @@ EMAIL_PATTERN = re.compile(r"^[^\s@]+@[^\s@]+\.com$", re.IGNORECASE)
 
 def database():
     return psycopg.connect(
-        host="localhost",
-        port=5432,
-        dbname="zanaab",
-        user="postgres",
-        password=os.environ["ZANAAB_DB_PASSWORD"],
+        host=os.environ.get("DB_HOST", "localhost"),
+        port=int(os.environ.get("DB_PORT", "5432")),
+        dbname=os.environ.get("DB_NAME", "zanaab"),
+        user=os.environ.get("DB_USER", "postgres"),
+        password=os.environ["DB_PASSWORD"],
     )
 
 
@@ -94,14 +94,14 @@ class ApiHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(encoded)))
-        self.send_header("Access-Control-Allow-Origin", "http://localhost:5174")
+        self.send_header("Access-Control-Allow-Origin", "http://localhost:5173")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
         self.wfile.write(encoded)
 
     def do_OPTIONS(self) -> None:
         self.send_response(HTTPStatus.NO_CONTENT)
-        self.send_header("Access-Control-Allow-Origin", "http://localhost:5174")
+        self.send_header("Access-Control-Allow-Origin", "http://localhost:5173")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
         self.end_headers()
